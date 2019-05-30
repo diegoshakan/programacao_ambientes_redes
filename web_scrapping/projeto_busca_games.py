@@ -1,14 +1,56 @@
 from bs4 import BeautifulSoup
 import requests
+import os
 
-url = 'https://www.comparegames.com.br/'
+class BuscaJogo:
+    def __init__(self, console, game):
+        self.console = console
+        self.game = game
+        self.url = 'https://www.comparegames.com.br/' + self.console + '/' + self.game
+        self.tag_title = ''
+        self.detalhes = []
+        self.lista_detalhe = []
+        
+
+    def page(self):
+        req = requests.get(self.url)
+        html = req.content
+
+        soup = BeautifulSoup(html, 'lxml')
+        self.tag_title = soup.title.string
+
+        detalhes = soup.find_all('div', {'class': 'prc-list-hd-price'})
+
+        for detalhe in detalhes:
+            price = detalhe.a.text
+            price = price.replace('\n', '')
+            price = price.replace('\t', '')
+            nome = detalhe.a['data-store']
+            url_loja = detalhe.a['href']
+            info = [nome, price, url_loja]
+            self.lista_detalhe.append(info)
+
+        self.mostraTela()
+
+    def mostraTela(self):
+        print('----------')
+        print(self.tag_title)
+        print('----------')
+
+        tam = len(self.lista_detalhe)
+        for i in range(tam):
+            print('-'*101)
+            print(f'Loja {i+1}: {self.lista_detalhe[i][0]} \nPreço: {self.lista_detalhe[i][1]} \nSite da Loja/Produto: {self.lista_detalhe[i][2]}')
+            print('-'*101)
+
+consoles = ['xbox-one', 'xbox360', 'ps4', 'ps3', 'ps-vita', 'wii-u', 'wii', 'ds-3ds', 'pc', 'nintendo-switch']
 
 print('-------------------------------------------------')
 print('''Olá! Seja bem-vindo ao seu buscador de games''')
 print('-------------------------------------------------')
-while True:
-    cod = int(input('''Qual Plataforma deseja fazer a busca:
-    1. Xbox One
+def main():
+    while True:
+        print('''    1. Xbox One
     2. Xbox 360
     3. PS4
     4. PS3
@@ -18,66 +60,25 @@ while True:
     8. 3DS
     9. PC
     10. Switch
-    0. Sair
-    '''))
-    # console = ''
-    if cod == 1:
-        console = 'xbox-one'
-    elif cod == 2:
-        console = 'xbox360'
-    elif cod == 3:
-        console = 'ps4'
-    elif cod == 4:
-        console = 'ps3'
-    elif cod == 5:
-        console = 'ps-vita'
-    elif cod == 6:
-        console = 'wii-u'
-    elif cod == 7:
-        console = 'wii'
-    elif cod == 8:
-        console = 'ds-3ds'
-    elif cod == 9:
-        console = 'pc'
-    elif cod == 10:
-        console = 'nintendo-switch'
-    elif cod == 0:
-        break
-    else:
-        print('Não existe esta plataforma! (Ainda)')
+    0. Sair''')
+        cod = int(input('Qual Plataforma deseja fazer a busca: '))
+        if cod == 0:
+            break
+        elif cod < 0 and cod > 10:
+            print('Não existe esta plataforma! (Ainda)')
+            main()
+        else:
+            console = consoles[cod-1]
 
-    name_game = input('Qual o game: ')
-    name_game = name_game.replace(' ','-')
+        name_game = input('Qual o game: ')
+        name_game = name_game.replace(' ','-')
 
-    url = url + console + '/' + name_game
+        BJ = BuscaJogo(console, name_game)
+        BJ.page()
 
-    req = requests.get(url)
-    html = req.content
+        dnv = input('Aperte enter para pesquisar novamente\n[0]Zero para para o programa: ')
+        if dnv == '0':
+            break
+        os.system('cls')
 
-    soup = BeautifulSoup(html, 'lxml')
-    tag_title = soup.title.string
-    
-    print('----------')
-    print(tag_title)
-    print('----------')
-
-    detalhes = soup.find_all('div', {'class': 'prc-list-hd-price'})
-
-    lista_detalhe = []
-
-    for detalhe in detalhes:
-        price = detalhe.a.text
-        price = price.replace('\n', '')
-        price = price.replace('\t', '')
-        nome = detalhe.a['data-store']
-        url_loja = detalhe.a['href']
-        info = [nome, price, url_loja]
-        lista_detalhe.append(info)
-    # if not tag_title == 'Compare Games - Página não encontrada.':
-    print('-----------------------------------------------------------------------------------------------------')
-    print(f'Loja 1: {lista_detalhe[0][0]} \nPreço: {lista_detalhe[0][1]} \nSite da Loja/Produto: {lista_detalhe[0][2]}')
-    print('-----------------------------------------------------------------------------------------------------')
-    print(f'Loja 2: {lista_detalhe[1][0]} \nPreço: {lista_detalhe[1][1]} \nSite da Loja/Produto: {lista_detalhe[1][2]}')
-    print('-----------------------------------------------------------------------------------------------------')
-    print(f'Loja 3: {lista_detalhe[2][0]} \nPreço: {lista_detalhe[2][1]} \nSite da Loja/Produto: {lista_detalhe[2][2]}')
-    print('-----------------------------------------------------------------------------------------------------')
+main()
