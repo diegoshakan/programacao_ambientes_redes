@@ -8,6 +8,8 @@ class BuscaJogo:
         self.game = game
         self.url = 'https://www.comparegames.com.br/' + self.console + '/' + self.game
         self.tag_title = ''
+        self.descricao = ''
+        self.nota_game = ''
         self.detalhes = []
         self.lista_detalhe = []
         
@@ -18,6 +20,12 @@ class BuscaJogo:
 
         soup = BeautifulSoup(html, 'lxml')
         self.tag_title = soup.title.string
+
+        self.descricao = soup.find('p', {'class': 'smy'}).string
+        self.descricao = self.descricao.replace('\n', '')
+        self.descricao = self.descricao.replace('\t', '')
+    
+        self.nota_game = soup.find('span', {'class': 'rtg'}).string
 
         detalhes = soup.find_all('div', {'class': 'prc-list-hd-price'})
 
@@ -36,6 +44,9 @@ class BuscaJogo:
         print('----------')
         print(self.tag_title)
         print('----------')
+        print(f'Descrição do Game: \n{self.descricao}')
+        print('----------')
+        print(f'Nota do Game: {self.nota_game} pontos de 100')
 
         tam = len(self.lista_detalhe)
         for i in range(tam):
@@ -76,11 +87,9 @@ def main():
         BJ = BuscaJogo(console, name_game)
         BJ.page()
 
-        dnv = input('Aperte enter para pesquisar novamente\n[0]Zero para para o programa: ')
+        dnv = input('Aperte Enter para pesquisar novamente\n[0]Zero para parar o programa: ')
         if dnv == '0':
             break
         os.system('cls')
 
 main()
-
-#Uhuuulll
