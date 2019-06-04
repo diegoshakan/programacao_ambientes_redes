@@ -90,6 +90,9 @@ def main():
         dnv = input('Aperte Enter para pesquisar novamente\n[0]Zero para parar o programa: ')
         if dnv == '0':
             break
-        os.system('cls')
+        # If your OS is Linux
+        os.system('clear')
+        # If your OS is Windows
+        # os.system('cls')
 
 main()
